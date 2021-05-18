@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: GithubAction
+name: BuildTestDeploy
 
 on:
   push:
@@ -28,7 +28,13 @@ jobs:
     - name: Clean install dependencies
       run: npm ci
 
-    - name: Build
+    - name: Build latest changes
       run: npm run build
       env:
         CI: false
+    
+    - name: Deploy latest changes
+      run: npm run deploy
+      env:
+        CI: false
+
