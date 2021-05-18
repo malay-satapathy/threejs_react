@@ -32,9 +32,4 @@ jobs:
       run: npm run build
       env:
         CI: false
-    
-    - name: Deploy latest changes
-      run: npm run deploy
-      env:
-        CI: false
 
