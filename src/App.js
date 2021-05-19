@@ -1,4 +1,5 @@
 import Box3D from './views/Box3D';
+import Wolfrahh from './views/Wolfrahh';
 
 function App() {
   return (
@@ -9,7 +10,9 @@ function App() {
       
     // </div>
 
-    <Box3D></Box3D>
+    //<Box3D></Box3D>
+
+    <Wolfrahh></Wolfrahh>
   );
 }
 
