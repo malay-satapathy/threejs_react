@@ -1,18 +1,14 @@
+import React from 'react';
 import Box3D from './views/Box3D';
-import Wolfrahh from './views/Wolfrahh';
+import LuciferMorningstar from './views/LuciferMorningstar';
 
 function App() {
   return (
-    // <div className="App">
-    //   <header className="App-header">
-    //     <p>Hello</p>
-    //   </header>
-      
-    // </div>
-
+    // Enable the below line to display 3D Box
     //<Box3D></Box3D>
 
-    <Wolfrahh></Wolfrahh>
+    // Enable the below line to display Lucifer Morningstar Model
+    <LuciferMorningstar></LuciferMorningstar>
   );
 }
 
