@@ -1,10 +1,25 @@
 # Threejs React 🌞
 
-## A playground for trying three.js using react-three-fibre, drie and cannon.js 👨‍💻
+## A playground for trying three.js using react-three-fibre, drie and cannon.js 👨‍💻 along with parcel-bundler 📦
 
 [![Build Status](https://github.com/malay-satapathy/threejs_react/workflows/BuildTestDeploy/badge.svg)](https://github.com/malay-satapathy/threejs_react/actions)
 [![Dependency Status](https://img.shields.io/david/malay-satapathy/threejs_react.svg)](https://david-dm.org/malay-satapathy/threejs_react)
 ![License](https://img.shields.io/github/license/malay-satapathy/threejs_react)
+
+## How to start?
+
+### Fork the repo and clone it to your local
+
+#### Step 1
+```
+npm install
+```
+#### Step 2
+```
+npm run dev
+```
+
+### The app will be launched at http://localhost:1234/
 
 ## Credits 🙏
 
