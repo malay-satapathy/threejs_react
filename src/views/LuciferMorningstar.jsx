@@ -5,6 +5,7 @@ import Model from "../models/LuciferMorningstar";
 
 function LuciferMorningstar() {
   const ref = useRef();
+  console.log("Inside LuciferMorningstar");
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ fov: 50 }}>
       <Suspense fallback={null}>

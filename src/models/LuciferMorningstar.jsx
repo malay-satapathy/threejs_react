@@ -8,10 +8,13 @@ title: Lucifer Morningstar
 
 import React, { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
+import modelUrl from '../GLTFModels/lucifer_morningstar/scene.gltf';
 
 export default function Model(props) {
+  console.log("Inside Model");
   const group = useRef();
-  const { nodes, materials } = useGLTF('/models/lucifer_morningstar/scene.gltf');
+  const { nodes, materials } = useGLTF(modelUrl);
+  console.log("After useGLTF");
   return (
     <group ref={group} {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
@@ -26,4 +29,4 @@ export default function Model(props) {
   );
 }
 
-useGLTF.preload('/models/lucifer_morningstar/scene.gltf');
+useGLTF.preload(modelUrl);
