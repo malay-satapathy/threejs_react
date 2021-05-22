@@ -8,7 +8,7 @@ title: Lucifer Morningstar
 
 import React, { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
-import modelUrl from '../GLTFModels/lucifer_morningstar/scene.gltf';
+import modelUrl from '../graphics/lucifer_morningstar.glb';
 
 export default function Model(props) {
   console.log("Inside Model");
