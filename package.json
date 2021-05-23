@@ -20,8 +20,8 @@
     "dev": "parcel src/index.html",
     "build": "parcel build src/index.html",
     "start": "react-scripts start",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "predeploy": "rm -rf dist && parcel build src/index.html --public-url https://malay-satapathy.github.io/threejs_react/",
+    "deploy": "gh-pages -d dist",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
