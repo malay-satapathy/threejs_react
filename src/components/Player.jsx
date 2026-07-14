@@ -6,17 +6,19 @@ import { usePlayerControls } from '../utils/usePlayerControls';
 import Model from '../models/LuciferMorningstar';
 import CameraFollow from './CameraFollow';
 
-const SPEED = 10;
-const JUMP_FORCE = 8;
+const SPEED = 12;
+const JUMP_FORCE = 10;
 
 const Player = () => {
   const { forward, backward, left, right, jump } = usePlayerControls();
   
+  // Use a physics sphere but LOCK the rotation so the model doesn't tumble!
   const [ref, api] = useSphere(() => ({
     mass: 1,
     type: 'Dynamic',
     position: [0, 5, 0],
     args: [1], // radius 1 sphere
+    fixedRotation: true, // CRITICAL FIX: prevents the sphere from rolling like a ball
   }));
 
   const velocity = useRef([0, 0, 0]);
@@ -37,8 +39,8 @@ const Player = () => {
 
     api.velocity.set(direction.x, velocity.current[1], direction.z);
 
-    // Jump Logic (only if touching the ground, simplified check)
-    if (jump && Math.abs(velocity.current[1]) < 0.05) {
+    // Jump Logic (only if roughly on the ground)
+    if (jump && Math.abs(velocity.current[1]) < 0.1) {
       api.velocity.set(velocity.current[0], JUMP_FORCE, velocity.current[2]);
     }
 
@@ -47,30 +49,39 @@ const Player = () => {
       const speed = Math.sqrt(direction.x ** 2 + direction.z ** 2);
       const time = state.clock.getElapsedTime();
 
+      // Determine target rotation based on movement direction
+      // Default model orientation might require offsetting. If the model looks backwards, add Math.PI
+      let targetRotationY = Math.PI; 
+      
       if (speed > 0.1) {
-        // Bobbing
-        modelRef.current.position.y = Math.sin(time * 15) * 0.1 - 1; // offset by -1 to align with sphere bottom
-        // Leaning into turns
-        modelRef.current.rotation.z = THREE.MathUtils.lerp(
-          modelRef.current.rotation.z,
-          direction.x * -0.05,
-          0.1
+        // Calculate the angle the player is moving towards
+        targetRotationY = Math.atan2(direction.x, direction.z);
+        
+        // Bobbing (smoother)
+        modelRef.current.position.y = THREE.MathUtils.lerp(
+          modelRef.current.position.y,
+          (Math.sin(time * 10) * 0.15) - 1, // Offset by -1 to align with sphere bottom
+          0.2
         );
-        // Leaning forward
+        
+        // Leaning slightly forward when running
         modelRef.current.rotation.x = THREE.MathUtils.lerp(
           modelRef.current.rotation.x,
-          direction.z * -0.05,
+          0.1, // lean forward
           0.1
         );
       } else {
         // Idle
         modelRef.current.position.y = THREE.MathUtils.lerp(modelRef.current.position.y, -1, 0.1);
-        modelRef.current.rotation.z = THREE.MathUtils.lerp(modelRef.current.rotation.z, 0, 0.1);
         modelRef.current.rotation.x = THREE.MathUtils.lerp(modelRef.current.rotation.x, 0, 0.1);
       }
       
-      // Keep model rotated to face back (default model orientation might be facing +Z)
-      modelRef.current.rotation.y = Math.PI;
+      // Smoothly rotate the model to face the movement direction
+      // We use a quaternion slerp for smooth, shortest-path rotation
+      const currentQuat = modelRef.current.quaternion.clone();
+      const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetRotationY);
+      currentQuat.slerp(targetQuat, 10 * delta);
+      modelRef.current.quaternion.copy(currentQuat);
     }
   });
 

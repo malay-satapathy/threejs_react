@@ -4,8 +4,8 @@ import * as THREE from 'three';
 
 const CameraFollow = ({ targetRef }) => {
   const { camera } = useThree();
-  const currentPosition = useRef(new THREE.Vector3());
-  const currentLookAt = useRef(new THREE.Vector3());
+  const currentPosition = useRef(new THREE.Vector3(0, 10, 10));
+  const currentLookAt = useRef(new THREE.Vector3(0, 0, 0));
 
   useFrame((state, delta) => {
     if (!targetRef.current) return;
@@ -14,17 +14,17 @@ const CameraFollow = ({ targetRef }) => {
     const playerPos = new THREE.Vector3();
     targetRef.current.getWorldPosition(playerPos);
 
-    // Calculate ideal camera position (behind and slightly above the player)
-    const idealOffset = new THREE.Vector3(0, 5, 10);
-    // If the player rotates, we would apply a quaternion to the idealOffset here.
-    // For a straight runner/simple movement, a fixed offset relative to the world works.
+    // Calculate ideal camera position (further behind and higher up for a better "top game" view)
+    const idealOffset = new THREE.Vector3(0, 6, 12);
     const idealPosition = playerPos.clone().add(idealOffset);
     
-    const idealLookAt = playerPos.clone().add(new THREE.Vector3(0, 2, -5));
+    // Look slightly above the player's feet
+    const idealLookAt = playerPos.clone().add(new THREE.Vector3(0, 2, 0));
 
-    // Lerp towards ideal position for smooth camera movement
-    currentPosition.current.lerp(idealPosition, 5 * delta);
-    currentLookAt.current.lerp(idealLookAt, 5 * delta);
+    // Smoothly interpolate camera position and lookAt target
+    // We use delta to ensure consistent speed regardless of framerate
+    currentPosition.current.lerp(idealPosition, 4 * delta);
+    currentLookAt.current.lerp(idealLookAt, 6 * delta);
 
     camera.position.copy(currentPosition.current);
     camera.lookAt(currentLookAt.current);

@@ -1,58 +1,70 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { Sky } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
-import { Stars } from '@react-three/drei';
-import Badge from './components/Badge';
 import Player from './components/Player';
 import InfiniteStreet from './components/InfiniteStreet';
+import { KeyboardControlsProvider } from './utils/usePlayerControls';
+import './index.css';
 
-function App() {
+const App = () => {
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <Badge />
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 60 }}>
-        {/* Environment setup */}
-        <color attach="background" args={['#000000']} />
-        <fog attach="fog" args={['#000000', 50, 200]} />
-        <ambientLight intensity={0.4} />
-        <directionalLight 
-          position={[50, 100, 50]} 
-          intensity={1.5} 
-          castShadow 
-          shadow-camera-left={-50} 
-          shadow-camera-right={50} 
-          shadow-camera-top={50} 
-          shadow-camera-bottom={-50} 
-        />
-        
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+    <KeyboardControlsProvider>
+      <div style={{ width: '100vw', height: '100vh', background: '#020205' }}>
+        <Canvas shadows camera={{ position: [0, 5, 10], fov: 60 }}>
+          {/* Deep dark fog for the synthwave atmosphere */}
+          <fog attach="fog" args={['#050510', 20, 150]} />
+          
+          <ambientLight intensity={0.3} color="#ffffff" />
+          {/* Neon tinted directional light */}
+          <directionalLight
+            castShadow
+            position={[50, 50, -50]}
+            intensity={1.5}
+            color="#ff00ff"
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+            shadow-camera-far={200}
+            shadow-camera-left={-50}
+            shadow-camera-right={50}
+            shadow-camera-top={50}
+            shadow-camera-bottom={-50}
+          />
+          {/* Secondary fill light */}
+          <directionalLight
+            position={[-50, 20, -50]}
+            intensity={1}
+            color="#00ffff"
+          />
 
-        <Suspense fallback={null}>
-          <Physics gravity={[0, -20, 0]}>
-            <Player />
-            <InfiniteStreet />
-          </Physics>
-        </Suspense>
-      </Canvas>
-      
-      {/* Instructions overlay */}
-      <div style={{
-        position: 'absolute',
-        bottom: 20,
-        left: 20,
-        color: 'white',
-        fontFamily: 'sans-serif',
-        background: 'rgba(0,0,0,0.5)',
-        padding: '10px',
-        borderRadius: '8px',
-        pointerEvents: 'none'
-      }}>
-        <p style={{ margin: '0 0 5px 0' }}><strong>Controls:</strong></p>
-        <p style={{ margin: 0 }}>W/A/S/D or Arrows to Move</p>
-        <p style={{ margin: '5px 0 0 0' }}>Space to Jump</p>
+          <Suspense fallback={null}>
+            <Physics gravity={[0, -30, 0]}>
+              <Player />
+              <InfiniteStreet />
+            </Physics>
+          </Suspense>
+        </Canvas>
+
+        {/* Controls overlay */}
+        <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '20px',
+          color: '#00ffff',
+          fontFamily: 'monospace',
+          background: 'rgba(0,0,0,0.7)',
+          padding: '10px',
+          borderRadius: '5px',
+          border: '1px solid #ff00ff',
+          pointerEvents: 'none'
+        }}>
+          <h3>Controls</h3>
+          <p>W/A/S/D - Move</p>
+          <p>Space - Jump</p>
+        </div>
       </div>
-    </div>
+    </KeyboardControlsProvider>
   );
-}
+};
 
 export default App;
