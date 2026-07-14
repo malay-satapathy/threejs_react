@@ -3,25 +3,25 @@ import { Canvas } from '@react-three/fiber';
 import { Sky } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
 import Player from './components/Player';
-import InfiniteStreet from './components/InfiniteStreet';
+import IndianIsland from './components/IndianIsland';
 import './index.css';
 
 const App = () => {
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#87CEEB' }}>
       <Canvas shadows camera={{ position: [0, 5, 10], fov: 60 }}>
-        {/* Realistic Sky and Fog */}
-        <Sky sunPosition={[100, 20, 100]} turbidity={0.1} rayleigh={0.5} />
-        <fog attach="fog" args={['#a0aab5', 30, 150]} />
+        {/* Warm Indian Sky and Haze */}
+        <Sky sunPosition={[100, 40, 100]} turbidity={0.6} rayleigh={1.2} mieCoefficient={0.005} mieDirectionalG={0.8} />
+        <fog attach="fog" args={['#dcbfa3', 40, 200]} />
         
-        <ambientLight intensity={0.4} color="#ffffff" />
+        <ambientLight intensity={0.5} color="#fff1e0" />
         
         {/* Main Sun Light */}
         <directionalLight
           castShadow
           position={[100, 100, 50]}
-          intensity={1.2}
-          color="#ffffee"
+          intensity={1.5}
+          color="#ffeedd"
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
           shadow-camera-far={300}
@@ -32,17 +32,17 @@ const App = () => {
           shadow-bias={-0.0001}
         />
         
-        {/* Soft fill light from the sky */}
+        {/* Soft fill light */}
         <directionalLight
           position={[-50, 50, -50]}
           intensity={0.3}
-          color="#90b0d0"
+          color="#aab8c2"
         />
 
         <Suspense fallback={null}>
           <Physics gravity={[0, -30, 0]}>
             <Player />
-            <InfiniteStreet />
+            <IndianIsland />
           </Physics>
         </Suspense>
       </Canvas>
