@@ -6,25 +6,28 @@ import { usePlayerControls } from '../utils/usePlayerControls';
 import Model from '../models/LuciferMorningstar';
 import CameraFollow from './CameraFollow';
 
-const SPEED = 12;
-const JUMP_FORCE = 10;
+const SPEED = 14;
+const JUMP_FORCE = 12;
 
 const Player = () => {
   const { forward, backward, left, right, jump } = usePlayerControls();
   
-  // Use a physics sphere but LOCK the rotation so the model doesn't tumble!
+  // Dynamic sphere with locked rotation to prevent rolling.
+  // We use friction to prevent sliding and make the character feel weighty.
   const [ref, api] = useSphere(() => ({
     mass: 1,
     type: 'Dynamic',
     position: [0, 5, 0],
-    args: [1], // radius 1 sphere
-    fixedRotation: true, // CRITICAL FIX: prevents the sphere from rolling like a ball
+    args: [1.2], // slightly larger radius to prevent clipping
+    fixedRotation: true,
+    material: { friction: 0 }, // We'll control stopping manually
   }));
 
   const velocity = useRef([0, 0, 0]);
   useEffect(() => api.velocity.subscribe((v) => (velocity.current = v)), [api.velocity]);
 
   const modelRef = useRef();
+  const currentRotation = useRef(Math.PI); // Track current visual rotation
 
   useFrame((state, delta) => {
     // Movement Logic
@@ -32,55 +35,57 @@ const Player = () => {
     const frontVector = new THREE.Vector3(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0));
     const sideVector = new THREE.Vector3((left ? 1 : 0) - (right ? 1 : 0), 0, 0);
 
-    direction
-      .subVectors(frontVector, sideVector)
-      .normalize()
-      .multiplyScalar(SPEED);
+    direction.subVectors(frontVector, sideVector);
 
-    api.velocity.set(direction.x, velocity.current[1], direction.z);
-
-    // Jump Logic (only if roughly on the ground)
-    if (jump && Math.abs(velocity.current[1]) < 0.1) {
-      api.velocity.set(velocity.current[0], JUMP_FORCE, velocity.current[2]);
+    if (direction.length() > 0) {
+      direction.normalize().multiplyScalar(SPEED);
     }
 
-    // Natural Bobbing & Leaning effect when moving
+    // Apply exact velocity for X and Z for snappy controls (like GTA walking/running)
+    api.velocity.set(direction.x, velocity.current[1], direction.z);
+
+    // Jump Logic
+    // We check if Y velocity is near zero to allow jumping (simple ground check)
+    if (jump && Math.abs(velocity.current[1]) < 0.05) {
+      api.velocity.set(direction.x, JUMP_FORCE, direction.z);
+    }
+
+    // Procedural Animation (Grounded feel)
     if (modelRef.current) {
       const speed = Math.sqrt(direction.x ** 2 + direction.z ** 2);
       const time = state.clock.getElapsedTime();
 
-      // Determine target rotation based on movement direction
-      // Default model orientation might require offsetting. If the model looks backwards, add Math.PI
-      let targetRotationY = Math.PI; 
+      let targetRotationY = currentRotation.current; 
       
       if (speed > 0.1) {
-        // Calculate the angle the player is moving towards
+        // Find rotation based on input direction
         targetRotationY = Math.atan2(direction.x, direction.z);
+        currentRotation.current = targetRotationY;
         
-        // Bobbing (smoother)
+        // Exaggerated bobbing to simulate running stride
+        const bobOffset = Math.abs(Math.sin(time * 12)) * 0.4;
         modelRef.current.position.y = THREE.MathUtils.lerp(
           modelRef.current.position.y,
-          (Math.sin(time * 10) * 0.15) - 1, // Offset by -1 to align with sphere bottom
-          0.2
+          -1.2 + bobOffset, // Base offset to touch ground + bob
+          0.3
         );
         
-        // Leaning slightly forward when running
-        modelRef.current.rotation.x = THREE.MathUtils.lerp(
-          modelRef.current.rotation.x,
-          0.1, // lean forward
-          0.1
-        );
+        // Lean into the run
+        modelRef.current.rotation.x = THREE.MathUtils.lerp(modelRef.current.rotation.x, 0.2, 0.1);
+        
+        // Slight side-to-side sway based on stride
+        modelRef.current.rotation.z = Math.sin(time * 6) * 0.05;
       } else {
-        // Idle
-        modelRef.current.position.y = THREE.MathUtils.lerp(modelRef.current.position.y, -1, 0.1);
-        modelRef.current.rotation.x = THREE.MathUtils.lerp(modelRef.current.rotation.x, 0, 0.1);
+        // Idle state: drop to base height and stand straight
+        modelRef.current.position.y = THREE.MathUtils.lerp(modelRef.current.position.y, -1.2, 0.2);
+        modelRef.current.rotation.x = THREE.MathUtils.lerp(modelRef.current.rotation.x, 0, 0.2);
+        modelRef.current.rotation.z = THREE.MathUtils.lerp(modelRef.current.rotation.z, 0, 0.2);
       }
       
-      // Smoothly rotate the model to face the movement direction
-      // We use a quaternion slerp for smooth, shortest-path rotation
+      // Smoothly rotate character model (slerp)
       const currentQuat = modelRef.current.quaternion.clone();
       const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetRotationY);
-      currentQuat.slerp(targetQuat, 10 * delta);
+      currentQuat.slerp(targetQuat, 12 * delta);
       modelRef.current.quaternion.copy(currentQuat);
     }
   });
@@ -89,10 +94,11 @@ const Player = () => {
     <>
       <CameraFollow targetRef={ref} />
       <mesh ref={ref}>
-        <sphereGeometry args={[1, 16, 16]} />
+        <sphereGeometry args={[1.2, 16, 16]} />
         <meshBasicMaterial visible={false} />
         <group ref={modelRef}>
-          <Model scale={[1, 1, 1]} />
+          {/* Adjust model scale if needed. Assuming 1 is okay, but if it's too small/big, change here */}
+          <Model scale={[1.2, 1.2, 1.2]} />
         </group>
       </mesh>
     </>
