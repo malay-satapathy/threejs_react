@@ -55,13 +55,12 @@ export const Streetlight = ({ position }) => {
         <cylinderGeometry args={[0.08, 0.08, 3, 8]} />
         <meshStandardMaterial color="#333" metalness={0.8} roughness={0.2} />
       </mesh>
-      {/* Light Bulb */}
+      {/* Light Bulb - purely emissive during the day */}
       <mesh position={[-3, 7.9, 0]}>
         <boxGeometry args={[0.5, 0.2, 0.5]} />
-        <meshStandardMaterial color="#ffeedd" emissive="#ffeedd" emissiveIntensity={2} />
+        <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
       </mesh>
-      {/* Point Light source */}
-      <pointLight position={[-3, 7.5, 0]} intensity={1.5} distance={20} color="#ffeedd" castShadow />
+
     </group>
   );
 };
