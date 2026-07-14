@@ -80,15 +80,6 @@ export default function Model(props) {
           rotation={[1.2421, 0.33, -0.7597]}
           userData={{ name: "Camera" }}
         />
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, 0, 0]}
-          color="white"
-          receiveShadow
-        >
-          <planeBufferGeometry attach="geometry" args={[5, 5]} />
-          <meshLambertMaterial attach="material" color="white" />
-        </mesh>
       </group>
     </group>
   );

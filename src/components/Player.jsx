@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useSphere } from '@react-three/cannon';
+import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 import { usePlayerControls } from '../utils/usePlayerControls';
 import Model from '../models/LuciferMorningstar';
@@ -12,13 +12,12 @@ const JUMP_FORCE = 12;
 const Player = () => {
   const { forward, backward, left, right, jump } = usePlayerControls();
   
-  // Dynamic sphere with locked rotation to prevent rolling.
-  // We use friction to prevent sliding and make the character feel weighty.
-  const [ref, api] = useSphere(() => ({
+  // Dynamic box with locked rotation to prevent rolling.
+  const [ref, api] = useBox(() => ({
     mass: 1,
     type: 'Dynamic',
     position: [0, 5, 0],
-    args: [1.2], // slightly larger radius to prevent clipping
+    args: [1.2, 2.4, 1.2], 
     fixedRotation: true,
     material: { friction: 0 }, // We'll control stopping manually
   }));
@@ -41,13 +40,20 @@ const Player = () => {
       direction.normalize().multiplyScalar(SPEED);
     }
 
-    // Apply exact velocity for X and Z for snappy controls (like GTA walking/running)
-    api.velocity.set(direction.x, velocity.current[1], direction.z);
+    // Use impulses to reach target velocity without overriding Y axis collision resolution
+    const currentVelX = velocity.current[0];
+    const currentVelZ = velocity.current[2];
+    
+    // We want to reach direction.x and direction.z instantly (snappy controls)
+    const impulseX = (direction.x - currentVelX);
+    const impulseZ = (direction.z - currentVelZ);
+    
+    api.applyImpulse([impulseX, 0, impulseZ], [0, 0, 0]);
 
     // Jump Logic
     // We check if Y velocity is near zero to allow jumping (simple ground check)
     if (jump && Math.abs(velocity.current[1]) < 0.05) {
-      api.velocity.set(direction.x, JUMP_FORCE, direction.z);
+      api.applyImpulse([0, JUMP_FORCE, 0], [0, 0, 0]);
     }
 
     // Procedural Animation (Grounded feel)
@@ -87,6 +93,10 @@ const Player = () => {
       const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetRotationY);
       currentQuat.slerp(targetQuat, 12 * delta);
       modelRef.current.quaternion.copy(currentQuat);
+    }
+    
+    if (typeof window !== 'undefined' && ref.current) {
+        window.playerY = ref.current.position.y;
     }
   });
 

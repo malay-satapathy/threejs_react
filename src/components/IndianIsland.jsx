@@ -13,12 +13,16 @@ const BoundaryWall = ({ position, args }) => {
 };
 
 const IndianIsland = () => {
-  // Ground (Island)
-  const [groundRef] = usePlane(() => ({
-    rotation: [-Math.PI / 2, 0, 0],
-    position: [0, 0, 0],
+  // Ground (Island) - Use a thin Static box instead of Plane for better collision stability
+  const [groundRef] = useBox(() => ({
+    position: [0, -0.5, 0],
+    args: [ISLAND_SIZE, 1, ISLAND_SIZE],
     type: 'Static',
   }));
+
+  React.useEffect(() => {
+    console.log("IndianIsland MOUNTED. Ground ref:", !!groundRef.current);
+  }, []);
 
   // Generative Layout
   const layout = useMemo(() => {
@@ -69,9 +73,9 @@ const IndianIsland = () => {
 
   return (
     <group>
-      {/* Island Ground (Dirt/Sand color) */}
+      {/* Island Ground Physics (Dirt/Sand color) */}
       <mesh ref={groundRef} receiveShadow>
-        <planeGeometry args={[ISLAND_SIZE, ISLAND_SIZE]} />
+        <boxGeometry args={[ISLAND_SIZE, 1, ISLAND_SIZE]} />
         <meshStandardMaterial color="#c2b280" roughness={1} />
       </mesh>
 
