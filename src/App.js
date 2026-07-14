@@ -1,49 +1,46 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Sky } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
 import Player from './components/Player';
 import InfiniteStreet from './components/InfiniteStreet';
-import { KeyboardControlsProvider } from './utils/usePlayerControls';
 import './index.css';
 
 const App = () => {
   return (
-    <KeyboardControlsProvider>
-      <div style={{ width: '100vw', height: '100vh', background: '#020205' }}>
-        <Canvas shadows camera={{ position: [0, 5, 10], fov: 60 }}>
-          {/* Deep dark fog for the synthwave atmosphere */}
-          <fog attach="fog" args={['#050510', 20, 150]} />
-          
-          <ambientLight intensity={0.3} color="#ffffff" />
-          {/* Neon tinted directional light */}
-          <directionalLight
-            castShadow
-            position={[50, 50, -50]}
-            intensity={1.5}
-            color="#ff00ff"
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
-            shadow-camera-far={200}
-            shadow-camera-left={-50}
-            shadow-camera-right={50}
-            shadow-camera-top={50}
-            shadow-camera-bottom={-50}
-          />
-          {/* Secondary fill light */}
-          <directionalLight
-            position={[-50, 20, -50]}
-            intensity={1}
-            color="#00ffff"
-          />
+    <div style={{ width: '100vw', height: '100vh', background: '#020205' }}>
+      <Canvas shadows camera={{ position: [0, 5, 10], fov: 60 }}>
+        {/* Deep dark fog for the synthwave atmosphere */}
+        <fog attach="fog" args={['#050510', 20, 150]} />
+        
+        <ambientLight intensity={0.3} color="#ffffff" />
+        {/* Neon tinted directional light */}
+        <directionalLight
+          castShadow
+          position={[50, 50, -50]}
+          intensity={1.5}
+          color="#ff00ff"
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+          shadow-camera-far={200}
+          shadow-camera-left={-50}
+          shadow-camera-right={50}
+          shadow-camera-top={50}
+          shadow-camera-bottom={-50}
+        />
+        {/* Secondary fill light */}
+        <directionalLight
+          position={[-50, 20, -50]}
+          intensity={1}
+          color="#00ffff"
+        />
 
-          <Suspense fallback={null}>
-            <Physics gravity={[0, -30, 0]}>
-              <Player />
-              <InfiniteStreet />
-            </Physics>
-          </Suspense>
-        </Canvas>
+        <Suspense fallback={null}>
+          <Physics gravity={[0, -30, 0]}>
+            <Player />
+            <InfiniteStreet />
+          </Physics>
+        </Suspense>
+      </Canvas>
 
         {/* Controls overlay */}
         <div style={{
@@ -63,7 +60,6 @@ const App = () => {
           <p>Space - Jump</p>
         </div>
       </div>
-    </KeyboardControlsProvider>
   );
 };
 
